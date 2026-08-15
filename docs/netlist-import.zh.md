@@ -1,3 +1,5 @@
+[English](./netlist-import.en.md) | 简体中文
+
 # 网表重建导入：从一份网表到板上有器件
 
 本文讲整条链路的前半段：**手里有一份网表，怎么把它变成嘉立创工程里的原理图，
@@ -205,7 +207,7 @@ python tools/compare_netlist.py out.json C:/tmp/board_export.json
 python tools/sync_pcb_via_importchanges.py <BoardName> [等待秒数，默认300]
 ```
 
-这一步的坑最密，`docs/铁律与坑.md` 第二节全篇在讲它。这里只重复三条最要命的：
+这一步的坑最密，`docs/pitfalls.zh.md` 第二节全篇在讲它。这里只重复三条最要命的：
 
 1. **`importChanges` 返回 true 不代表元件落板了**，它只是把一个确认对话框叫了出来。
    要点里面那个叫「应用修改」的按钮（不是「确定」），元件才会真的放上去。
@@ -234,10 +236,10 @@ powershell -ExecutionPolicy Bypass -File tools/list_eda_buttons.ps1
 - 摆件、画板框、布线：`pcb_PrimitiveComponent` 的 `setState_X/Y/Rotation`、`pcb_PrimitivePolyline.create`、`pcb_PrimitiveLine.create`。
 - 自动布线：`getDsnFile` 导出 → FreeRouting → `importAutoRouteSesFile` 导回。
   （FreeRouting 1.9 的批处理模式可用；2.2.4 有个致命的空指针问题。）
-- 间距整改：先 `repour_safe` 重灌铺铜，再 `neck_analyze` → `gap_nudge` → `width_cut` → `neck_sink` → `fix_sink`，顺序和理由见 `docs/铁律与坑.md` 第六节。
+- 间距整改：先 `repour_safe` 重灌铺铜，再 `neck_analyze` → `gap_nudge` → `width_cut` → `neck_sink` → `fix_sink`，顺序和理由见 `docs/pitfalls.zh.md` 第六节。
 - 校验：`netcmp_live.py` 逐脚回归 + `render_at.py` 截图用眼睛看。
 - 下单文件：`export_mfg.py` 导 BOM 和贴片坐标。
 
-最后提醒一句，这句在 `docs/铁律与坑.md` 里也有，值得说两遍：
+最后提醒一句，这句在 `docs/pitfalls.zh.md` 里也有，值得说两遍：
 **DRC 全绿不等于板子连对了。DRC 不检查连通性——故意断一条网，它照样报 0。**
 连通必须独立校验。

@@ -1,4 +1,4 @@
-[English](./README.md) | 简体中文
+[English](../../) | 简体中文
 
 # easyeda-agent-toolkit
 
@@ -41,7 +41,7 @@
 **文档为什么重要。** 嘉立创 EDA 专业版有几类反直觉的 API 行为：
 写属性返回成功但重启后还原、DRC 完全不检查连通性、确认对话框可能要几分钟才渲染出来、
 共线同网的线段在创建时会被合并。这些官方参考文档里没有。
-`docs/铁律与坑.md` 收集了这些行为，下面的[值得先读的坑](#值得先读的坑)挑出了最容易耗掉一整天的那些。
+`docs/pitfalls.zh.md` 收集了这些行为，下面的[值得先读的坑](#值得先读的坑)挑出了最容易耗掉一整天的那些。
 
 ---
 
@@ -181,11 +181,11 @@ python tools/netlist_drc.py examples/out.json
 
 | 模板 | 用途 |
 |---|---|
-| [`prompts/component-sourcing-brief.zh.md`](prompts/component-sourcing-brief.zh.md) | 选型调研任务书：你填需求规格（电气、封装、温度范围、成本上限、装配工艺约束、目标产线、供货），AI 产出主选与备选的逐项对照表 |
-| [`prompts/part-number-verification.zh.md`](prompts/part-number-verification.zh.md) | 料号核验清单，在任何编号写进 BOM 之前跑 |
+| [`prompts/component-sourcing-brief.zh.md`](../../prompts/component-sourcing-brief.zh.md) | 选型调研任务书：你填需求规格（电气、封装、温度范围、成本上限、装配工艺约束、目标产线、供货），AI 产出主选与备选的逐项对照表 |
+| [`prompts/part-number-verification.zh.md`](../../prompts/part-number-verification.zh.md) | 料号核验清单，在任何编号写进 BOM 之前跑 |
 
 英文版：`component-sourcing-brief.en.md`、`part-number-verification.en.md`。
-阶段说明与交接约定见 [`docs/选型调研.md`](docs/选型调研.md)。
+阶段说明与交接约定见 [`docs/component-sourcing.zh.md`](../../docs/component-sourcing.zh.md)。
 
 **最要紧的一条纪律：** 任何 C 编号，必须在器件库中**实际检索命中**之后才算数——
 检索确实返回了这个编号对应的器件、库存 > 0、封装与关键参数逐项对上。
@@ -206,7 +206,7 @@ python tools/netlist_drc.py examples/out.json
 
 ## 主线流程：从网表到下单文件
 
-完整版在 [`docs/网表重建导入.md`](docs/网表重建导入.md)，这里给骨架。
+完整版在 [`docs/netlist-import.zh.md`](../../docs/netlist-import.zh.md)，这里给骨架。
 
 ```
 电路需求
@@ -344,7 +344,7 @@ sch_PrimitiveComponent.create(component, x, y, subPartName, rotation, mirror, ad
 
 ## 值得先读的坑
 
-完整列表在 [`docs/铁律与坑.md`](docs/铁律与坑.md)。最贵的十条：
+完整列表在 [`docs/pitfalls.zh.md`](../../docs/pitfalls.zh.md)。最贵的十条：
 
 1. **返回成功但没落盘的写入。** 过孔孔径与铺铜轮廓宽都会报成功却没保存。重启嘉立创复核。
 2. **DRC 不管连通性。** 断了的网照样报 0。连通要独立校验。
@@ -370,13 +370,13 @@ sch_PrimitiveComponent.create(component, x, y, subPartName, rotation, mirror, ad
 
 ```
 easyeda-agent-toolkit/
-├── README.md                 英文版（默认）
-├── README.zh-Hans.md         本文
+├── README.md                 英文版（仓库主页）
+├── i18n/zh-Hans/README.md    本文
 ├── LICENSE                   MIT
-├── docs/                     仅中文
-│   ├── 选型调研.md            选型阶段与交接约定
-│   ├── 铁律与坑.md            API 行为与坑
-│   └── 网表重建导入.md         网表到 PCB 的完整流程
+├── docs/                     指南, 中英双语
+│   ├── component-sourcing.{en,zh}.md   选型阶段与交接约定
+│   ├── netlist-import.{en,zh}.md       网表到 PCB 的完整流程
+│   └── pitfalls.{en,zh}.md             API 行为与坑
 ├── prompts/                  AI 无关提示词模板, 中英双语
 │   ├── component-sourcing-brief.{en,zh}.md
 │   └── part-number-verification.{en,zh}.md

@@ -1,4 +1,4 @@
-English | [简体中文](./README.zh-Hans.md)
+English | [简体中文](./i18n/zh-Hans/)
 
 # easyeda-agent-toolkit
 
@@ -13,10 +13,9 @@ The chain starts one step earlier than the scripts do. `prompts/` holds **AI-agn
 component sourcing stage — turning circuit requirements into a BOM with verified supplier part numbers —
 so that stage has the same evidence discipline as the automated steps that follow.
 
-> **Documentation language.** `docs/` is currently written in Chinese only. This README (English and
-> [Chinese](./README.zh-Hans.md)) covers the full workflow and the most important pitfalls, so it is
-> self-contained even if you do not read Chinese. The script docstrings and console output are also Chinese.
-> The sourcing templates under `prompts/` ship in **both English and Chinese** (`.en.md` / `.zh.md`).
+> **Documentation language.** Every guide under `docs/` and every template under `prompts/` ships in
+> both English and Chinese, distinguished by an `.en.md` / `.zh.md` suffix. This README is available in
+> [Chinese](./i18n/zh-Hans/) as well. Script docstrings and console output remain Chinese.
 
 ---
 
@@ -50,7 +49,7 @@ practical split is: scripts handle bulk rebuild and verification, a human handle
 **Why the docs matter.** Several EasyEDA Pro API behaviours are counter-intuitive: property writes that
 report success but revert on restart, a DRC that does not check connectivity at all, a confirmation dialog
 that can take minutes to render, and collinear same-net segments that get merged on creation. These are not
-in the official reference. `docs/铁律与坑.md` (Chinese) collects them; the
+in the official reference. [`docs/pitfalls.en.md`](docs/pitfalls.en.md) collects them; the
 [pitfalls section](#pitfalls-worth-reading-first) below summarises the ones most likely to cost you a day.
 
 ---
@@ -207,7 +206,7 @@ The templates name no AI product, assume no knowledge of your project, and mark 
 | [`prompts/part-number-verification.en.md`](prompts/part-number-verification.en.md) | Verification checklist run before anything is written into the BOM |
 
 Chinese versions: `component-sourcing-brief.zh.md`, `part-number-verification.zh.md`. The guide
-[`docs/选型调研.md`](docs/选型调研.md) (Chinese) covers the stage and its handoff contract.
+[`docs/component-sourcing.en.md`](docs/component-sourcing.en.md) covers the stage and its handoff contract.
 
 **The rule that matters most:** a C-number counts only after it has actually been retrieved from the
 component library — the search returned that part, stock is above zero, and package and key parameters match
@@ -229,7 +228,7 @@ later step ever reports that the number itself was wrong.
 
 ## Workflow: from netlist to manufacturing files
 
-The full write-up is in [`docs/网表重建导入.md`](docs/网表重建导入.md) (Chinese). The skeleton:
+The full write-up is in [`docs/netlist-import.en.md`](docs/netlist-import.en.md). The skeleton:
 
 ```
 circuit requirements
@@ -374,7 +373,7 @@ Run in this order:
 
 ## Pitfalls worth reading first
 
-Full list in [`docs/铁律与坑.md`](docs/铁律与坑.md) (Chinese). The ten most expensive:
+Full list in [`docs/pitfalls.en.md`](docs/pitfalls.en.md). The ten most expensive:
 
 1. **Writes that do not persist.** Via diameter and pour outline width both report success without being
    saved. Restart EasyEDA to verify.
@@ -411,12 +410,12 @@ Full list in [`docs/铁律与坑.md`](docs/铁律与坑.md) (Chinese). The ten m
 ```
 easyeda-agent-toolkit/
 ├── README.md                 this file (English)
-├── README.zh-Hans.md         Chinese version
+├── i18n/zh-Hans/README.md    Chinese version
 ├── LICENSE                   MIT
-├── docs/                     Chinese only
-│   ├── 选型调研.md            sourcing stage and its handoff contract
-│   ├── 铁律与坑.md            API behaviours and pitfalls
-│   └── 网表重建导入.md         full netlist-to-PCB walkthrough
+├── docs/                     guides, English and Chinese
+│   ├── component-sourcing.{en,zh}.md   sourcing stage and its handoff contract
+│   ├── netlist-import.{en,zh}.md       full netlist-to-PCB walkthrough
+│   └── pitfalls.{en,zh}.md             API behaviours and pitfalls
 ├── prompts/                  AI-agnostic templates, English and Chinese
 │   ├── component-sourcing-brief.{en,zh}.md
 │   └── part-number-verification.{en,zh}.md

@@ -1,3 +1,5 @@
+[English](./component-sourcing.en.md) | 简体中文
+
 # 选型调研：从需求到料号
 
 本文讲整条链路最前面的一段：**手里只有电路需求，怎么变成一份带立创 C 编号的 BOM**。
@@ -22,7 +24,7 @@
 料号落定 / BOM      ← 逐条核验后才写进 BOM 的 Supplier Part 列
       │  tools/tel2json_netlist.py
       ▼
-网表重建导入        ← docs/网表重建导入.md
+网表重建导入        ← docs/netlist-import.zh.md
       │
       ▼
 PCB / 几何整改 / 下单
