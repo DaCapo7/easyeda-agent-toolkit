@@ -1,0 +1,52 @@
+{
+  "gge1": {
+    "props": {
+      "Designator": "C1",
+      "device_name": "CL05A105KA5NNNC",
+      "value": "1uF",
+      "Supplier Part": "C0000002"
+    },
+    "pins": {
+      "1": "VCC_3V3",
+      "2": "GND"
+    }
+  },
+  "gge2": {
+    "props": {
+      "Designator": "J1",
+      "device_name": "EXAMPLE-CONN-4P",
+      "value": "",
+      "Supplier Part": "C0000003"
+    },
+    "pins": {
+      "1": "VCC_3V3",
+      "2": "GND",
+      "3": "SENSE_A",
+      "4": "NC_SPARE"
+    }
+  },
+  "gge3": {
+    "props": {
+      "Designator": "R1",
+      "device_name": "0402WGF1002TCE",
+      "value": "10k",
+      "Supplier Part": "C0000001"
+    },
+    "pins": {
+      "1": "VCC_3V3",
+      "2": "SENSE_A"
+    }
+  },
+  "gge4": {
+    "props": {
+      "Designator": "R2",
+      "device_name": "0402WGF1002TCE",
+      "value": "10k",
+      "Supplier Part": "C0000001"
+    },
+    "pins": {
+      "1": "SENSE_A",
+      "2": "GND"
+    }
+  }
+}

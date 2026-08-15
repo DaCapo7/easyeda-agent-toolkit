@@ -1,0 +1,35 @@
+# 脚本运行时产物
+__pycache__/
+*.pyc
+tools/eda_jobs/*.js
+tools/eda_jobs/*.json
+tools/_out/
+examples/out.json
+tools/_mfg_out/
+tools/_ns_backup_*.json
+tools/_repour_safe.ps1
+tools/*_fixnc.js
+tools/*_fixsupplier.js
+
+# 私有板卡数据 —— 千万别提交
+*.tel
+*.eprj2
+*.zip
+bom*.csv
+BOM*.csv
+*_CPL*.csv
+*.gbr
+*.drl
+
+# 例外: examples/ 下的演示数据是仓库自带的示例, 全部是编造的占位值
+!examples/demo.tel
+!examples/demo_bom.csv
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+
+# 本地文稿, 不发布到 GitHub
+发帖草稿.md

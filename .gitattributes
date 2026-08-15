@@ -1,0 +1,9 @@
+# 仓库内统一 LF, 检出时按平台还原
+* text=auto eol=lf
+
+# Windows 脚本必须 CRLF, 否则 PowerShell / cmd 可能解析异常
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+
+# 二进制/原样文件
+*.png binary
