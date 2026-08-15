@@ -8,6 +8,9 @@
 转网表、生成原理图、同步到 PCB、跑 DRC、批量改线宽与几何、导下单文件。
 有几个操作确实没有 API 可达，文档里会明确指出，并说明本工具箱采用的界面自动化替代方案。
 
+链路的起点比脚本更靠前。`prompts/` 放的是选型调研阶段的 **AI 无关提示词模板**——
+把电路需求变成一份带已核验供应商编号的 BOM——让这一段和后面的自动化步骤遵循同样的证据标准。
+
 ---
 
 ## 目录
@@ -16,6 +19,7 @@
 - [与官方 easyeda-api-skill 的关系](#与官方-easyeda-api-skill-的关系)
 - [环境准备](#环境准备)
 - [第一条命令](#第一条命令)
+- [选型调研](#选型调研)
 - [主线流程：从网表到下单文件](#主线流程从网表到下单文件)
 - [工具清单](#工具清单)
 - [值得先读的坑](#值得先读的坑)
@@ -166,12 +170,50 @@ python tools/netlist_drc.py examples/out.json
 
 ---
 
+## 选型调研
+
+链路的起点在脚本之前：电路需求要先变成一份带真实供应商编号的 BOM。
+这一段是调研而不是自动化，所以本仓库给的是**提示词模板**而不是代码——
+把模板交给任意一个具备联网检索能力的 AI，最后用一份核验清单收口。
+
+模板不写任何 AI 品牌，不假设执行者了解你的项目，所有待填处用〈尖括号说明〉标出。
+换一个模型接手，用法完全一样。
+
+| 模板 | 用途 |
+|---|---|
+| [`prompts/component-sourcing-brief.zh.md`](prompts/component-sourcing-brief.zh.md) | 选型调研任务书：你填需求规格（电气、封装、温度范围、成本上限、装配工艺约束、目标产线、供货），AI 产出主选与备选的逐项对照表 |
+| [`prompts/part-number-verification.zh.md`](prompts/part-number-verification.zh.md) | 料号核验清单，在任何编号写进 BOM 之前跑 |
+
+英文版：`component-sourcing-brief.en.md`、`part-number-verification.en.md`。
+阶段说明与交接约定见 [`docs/选型调研.md`](docs/选型调研.md)。
+
+**最要紧的一条纪律：** 任何 C 编号，必须在器件库中**实际检索命中**之后才算数——
+检索确实返回了这个编号对应的器件、库存 > 0、封装与关键参数逐项对上。
+元器件编号是语言模型会安静出错的一类内容：格式规整、长度固定，
+很容易生成出一个格式完全正确但根本不存在、或者存在但对应完全不同器件的编号，
+而这类错误在导入之前没有任何症状。
+
+核验有两条通道：立创商城 / 嘉立创元件库网页检索，
+或经桥直接查 EDA 客户端连着的那个库——`examples/30_library_search.js` 为此封装了
+`eda.lib_Device.search()` 与 `eda.lib_Device.getByLcscIds()`，
+可读出库存、价格与基础库 / 扩展库归属。
+
+**为什么这一段属于本仓库：** 后面每一个自动化步骤都假设 `Supplier Part` 是对的。
+一旦不对，`tel2json_netlist.py` 会忠实地把错编号写进网表，导入会忠实地放上错器件，
+`fix_supplier_ids.py` 会忠实地把错编号刷得更一致。后面没有任何一步会告诉你编号本身错了。
+
+---
+
 ## 主线流程：从网表到下单文件
 
 完整版在 [`docs/网表重建导入.md`](docs/网表重建导入.md)，这里给骨架。
 
 ```
-.tel 网表 + BOM(带立创料号)
+电路需求
+        │  prompts/component-sourcing-brief.zh.md   (选型调研)
+        │  prompts/part-number-verification.zh.md   (写进 BOM 之前核验)
+        ▼
+.tel 网表 + BOM(带已核验的立创料号)
         │  tel2json_netlist.py
         ▼
    带料号的网表 .json  ──── netlist_drc.py（离线自查）
@@ -332,14 +374,19 @@ easyeda-agent-toolkit/
 ├── README.zh-Hans.md         本文
 ├── LICENSE                   MIT
 ├── docs/                     仅中文
+│   ├── 选型调研.md            选型阶段与交接约定
 │   ├── 铁律与坑.md            API 行为与坑
 │   └── 网表重建导入.md         网表到 PCB 的完整流程
+├── prompts/                  AI 无关提示词模板, 中英双语
+│   ├── component-sourcing-brief.{en,zh}.md
+│   └── part-number-verification.{en,zh}.md
 ├── tools/                    脚本（扁平放置，互相靠相对路径调用）
 │   └── eda_jobs/             脚本生成的临时 JS 作业落在这里（不入 git）
 └── examples/
     ├── 00_probe.js            连通性探针与列板
     ├── 10_export_netlist.js   导出成品网表落盘
     ├── 20_pin_truth_probe.js  脚位探针（比 datasheet 可靠）
+    ├── 30_library_search.js   器件库检索与料号核验
     ├── demo.tel               演示网表，四个器件，可直接跑
     ├── demo_bom.csv           配套 BOM
     └── example_netlist.json   该演示的产物，也是网表 JSON 的格式参考

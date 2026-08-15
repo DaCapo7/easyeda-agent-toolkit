@@ -9,9 +9,14 @@ end to end: convert a netlist, generate a schematic, sync it to the PCB, run DRC
 and geometry, and export manufacturing files. A few operations genuinely cannot be reached through the API;
 those are called out explicitly in the docs, along with the UI-automation workarounds this toolkit uses.
 
+The chain starts one step earlier than the scripts do. `prompts/` holds **AI-agnostic templates** for the
+component sourcing stage — turning circuit requirements into a BOM with verified supplier part numbers —
+so that stage has the same evidence discipline as the automated steps that follow.
+
 > **Documentation language.** `docs/` is currently written in Chinese only. This README (English and
 > [Chinese](./README.zh-Hans.md)) covers the full workflow and the most important pitfalls, so it is
 > self-contained even if you do not read Chinese. The script docstrings and console output are also Chinese.
+> The sourcing templates under `prompts/` ship in **both English and Chinese** (`.en.md` / `.zh.md`).
 
 ---
 
@@ -21,6 +26,7 @@ those are called out explicitly in the docs, along with the UI-automation workar
 - [Relationship to the official easyeda-api-skill](#relationship-to-the-official-easyeda-api-skill)
 - [Setup](#setup)
 - [First commands](#first-commands)
+- [Component sourcing](#component-sourcing)
 - [Workflow: from netlist to manufacturing files](#workflow-from-netlist-to-manufacturing-files)
 - [Tool reference](#tool-reference)
 - [Pitfalls worth reading first](#pitfalls-worth-reading-first)
@@ -186,12 +192,51 @@ resolved). The second flags `NC_SPARE` as a net with only one pin attached, whic
 
 ---
 
+## Component sourcing
+
+The chain begins before any script runs: circuit requirements have to become a BOM carrying real supplier
+part numbers. That stage is research, not automation, so this repository supplies **prompt templates**
+rather than code. Hand a template to any AI with web search, and finish with a verification checklist.
+
+The templates name no AI product, assume no knowledge of your project, and mark every blank with
+〈angle-bracket〉 placeholders. They work the same whichever model picks them up.
+
+| Template | Purpose |
+|---|---|
+| [`prompts/component-sourcing-brief.en.md`](prompts/component-sourcing-brief.en.md) | Sourcing brief: you fill in the requirements (electrical, package, temperature, cost ceiling, assembly constraints, target assembly service, supply), the AI returns a primary choice and alternates compared line by line |
+| [`prompts/part-number-verification.en.md`](prompts/part-number-verification.en.md) | Verification checklist run before anything is written into the BOM |
+
+Chinese versions: `component-sourcing-brief.zh.md`, `part-number-verification.zh.md`. The guide
+[`docs/选型调研.md`](docs/选型调研.md) (Chinese) covers the stage and its handoff contract.
+
+**The rule that matters most:** a C-number counts only after it has actually been retrieved from the
+component library — the search returned that part, stock is above zero, and package and key parameters match
+item by item. Part numbers are a category where language models fail quietly: the format is regular and the
+length fixed, so a well-formed number that does not exist, or that denotes something entirely different, is
+easy to emit and shows no symptom until import.
+
+Verification runs through either the LCSC/JLCPCB web library, or through the bridge against the library the
+EasyEDA client is actually connected to — `examples/30_library_search.js` wraps
+`eda.lib_Device.search()` and `eda.lib_Device.getByLcscIds()` for that purpose, and reports stock, price and
+basic/extended library membership.
+
+Why this belongs in the repository: every automated step downstream assumes `Supplier Part` is correct. If
+it is not, `tel2json_netlist.py` faithfully writes the wrong number into the netlist, the import faithfully
+places the wrong component, and `fix_supplier_ids.py` faithfully makes the wrong number more consistent. No
+later step ever reports that the number itself was wrong.
+
+---
+
 ## Workflow: from netlist to manufacturing files
 
 The full write-up is in [`docs/网表重建导入.md`](docs/网表重建导入.md) (Chinese). The skeleton:
 
 ```
-.tel netlist + BOM (with LCSC part numbers)
+circuit requirements
+        │  prompts/component-sourcing-brief.en.md   (sourcing research)
+        │  prompts/part-number-verification.en.md   (before writing the BOM)
+        ▼
+.tel netlist + BOM (with verified LCSC part numbers)
         │  tel2json_netlist.py
         ▼
    netlist .json with part numbers  ──── netlist_drc.py  (offline sanity check)
@@ -369,14 +414,19 @@ easyeda-agent-toolkit/
 ├── README.zh-Hans.md         Chinese version
 ├── LICENSE                   MIT
 ├── docs/                     Chinese only
+│   ├── 选型调研.md            sourcing stage and its handoff contract
 │   ├── 铁律与坑.md            API behaviours and pitfalls
 │   └── 网表重建导入.md         full netlist-to-PCB walkthrough
+├── prompts/                  AI-agnostic templates, English and Chinese
+│   ├── component-sourcing-brief.{en,zh}.md
+│   └── part-number-verification.{en,zh}.md
 ├── tools/                    scripts (flat; they call each other by relative path)
 │   └── eda_jobs/             generated temporary JS jobs land here (not tracked)
 └── examples/
     ├── 00_probe.js            connectivity probe and board listing
     ├── 10_export_netlist.js   export the resulting netlist to disk
     ├── 20_pin_truth_probe.js  pin-number probe (more reliable than a datasheet)
+    ├── 30_library_search.js   library search and part-number verification
     ├── demo.tel               demo netlist, four components, runnable as-is
     ├── demo_bom.csv           matching BOM
     └── example_netlist.json   the output of that demo, and the JSON format reference
